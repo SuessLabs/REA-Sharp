@@ -1,4 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
   <ItemGroup><ProjectReference Include="../Rea.Automation/Rea.Automation.csproj" /></ItemGroup>
+  <ItemGroup Condition="'$(InstallerPayload)' != ''">
+    <EmbeddedResource Include="$(InstallerPayload)" LogicalName="Rea.Payload.zip" />
+  </ItemGroup>
 </Project>

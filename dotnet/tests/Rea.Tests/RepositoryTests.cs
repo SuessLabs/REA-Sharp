@@ -47,6 +47,7 @@ internal static class RepositoryTests
             {
                 if (current == root && Path.GetFileName(file) == ".git") continue;
                 var relative = Path.GetRelativePath(root, file).Replace('\\', '/');
+                if (relative is "build.bat" or "build.ps1") continue; // User-authorized Windows release entrypoints only.
                 if (relative == "install.sh")
                 {
                     var launcher = File.ReadAllText(file).Replace("\r\n", "\n", StringComparison.Ordinal);
@@ -75,6 +76,7 @@ internal static class RepositoryTests
                 var name = Path.GetFileName(child);
                 if (current == root && name is ".git" or ".codex" or ".vs" or ".idea" or ".vscode" or ".cache" or "_reference") continue;
                 if (string.Equals(child, packages, StringComparison.OrdinalIgnoreCase)) continue;
+                if (current == root && name == "publish") continue;
                 if (name is "bin" or "obj" && Directory.EnumerateFiles(current, "*.csproj").Any()) continue;
                 if ((File.GetAttributes(child) & FileAttributes.ReparsePoint) != 0)
                 { yield return Path.GetRelativePath(root, child) + " (unexamined directory link)"; continue; }

@@ -39,7 +39,10 @@ dotnet exec dotnet/src/Rea.Cli/bin/Release/net10.0/rea.dll setup --config /path/
 ```
 
 The default is plan-only. An explicit --yes approves adding an mcpServers.rea-sharp
-entry using dotnet, the current absolute CLI assembly path, and the mcp command.
+entry using the native rea executable when launched through its app host. When
+launched through dotnet exec, it uses dotnet plus the current absolute CLI assembly
+path instead. Self-contained installations therefore register their native executable
+and do not require a global dotnet command.
 Existing unrelated JSON properties and server entries remain intact. Existing
 rea-sharp entries must already match or setup refuses to replace them. Every
 changed existing file gets an exact backup; repeated matching setup does nothing.

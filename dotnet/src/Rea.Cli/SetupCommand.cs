@@ -26,8 +26,12 @@ public static class SetupCommand
                 }
             }
             if (path is null) throw new ArgumentException("Select an explicit JSON MCP client configuration using --config. No automatic client/engine installation is available.");
-            var entry = new JsonObject { ["command"] = "dotnet", ["args"] = new JsonArray("exec", typeof(CliApplication).Assembly.Location, "mcp") };
-            await output.WriteLineAsync("REA-Sharp setup plan\n  Configuration: " + path + "\n  Add: mcpServers.rea-sharp\n  Command: dotnet exec \"" + typeof(CliApplication).Assembly.Location + "\" mcp\n  Existing values are preserved; changed files get an exact backup. No provider, Node/npm, runtime or PATH installation.");
+            var processPath = Environment.ProcessPath;
+            var nativeHost = processPath is not null && string.Equals(Path.GetFileNameWithoutExtension(processPath), "rea", StringComparison.OrdinalIgnoreCase);
+            var entry = nativeHost
+                ? new JsonObject { ["command"] = processPath, ["args"] = new JsonArray("mcp") }
+                : new JsonObject { ["command"] = "dotnet", ["args"] = new JsonArray("exec", typeof(CliApplication).Assembly.Location, "mcp") };
+            await output.WriteLineAsync("REA-Sharp setup plan\n  Configuration: " + path + "\n  Add: mcpServers.rea-sharp\n  Entry: " + entry.ToJsonString() + "\n  Existing values are preserved; changed files get an exact backup. No provider, Node/npm, runtime or PATH installation.");
             if (File.Exists(path))
             {
                 await using var original = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -84,4 +88,3 @@ public static class SetupCommand
     }
 
 }
-

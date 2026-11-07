@@ -121,6 +121,21 @@ completion; local fixtures are not live provider/client or remote CI verificatio
 Do not claim full synchronization while pending work remains, and do not commit,
 push or publish unless separately authorized.
 
+## Windows release builds
+
+The user explicitly authorized root `build.bat` and `build.ps1` as Windows build
+entrypoints. The batch launcher calls PowerShell; installer and application logic
+remain C#. These named files are exceptions to the general shell implementation
+restriction, not permission to restore Node/npm or other-language application code.
+
+Run `build.bat` to create self-contained Windows release assets in ignored
+`publish/`. `build.bat -Install` also launches the C# installer for approval.
+`-Test` runs the full suite and fails on any assertion. Default builds report
+that the full suite was not run and perform isolated installer/CLI smoke checks
+on the host architecture. See docs/windows-releases.md. Do not upload generated
+assets or claim release qualification automatically. Existing same-version assets
+require explicit `-Force`, which backs them up before replacement.
+
 ## Implementation and development
 
 The application, repository automation and experiments use C# targeting .NET 10.

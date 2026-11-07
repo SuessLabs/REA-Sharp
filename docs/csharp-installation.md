@@ -1,5 +1,9 @@
 # Install the C# preview
 
+For a standalone Windows installer that requires no SDK/runtime on the destination
+machine, use the [Windows release build](windows-releases.md). `build.bat` creates
+uploadable assets in `publish/`; `build.bat -Install` builds and launches setup.
+
 Bring your own .NET 10 SDK. From a source checkout on Linux or macOS:
 
 ```sh

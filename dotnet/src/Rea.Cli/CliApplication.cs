@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -11,6 +12,7 @@ namespace Rea.Cli;
 
 public static class CliApplication
 {
+    public static string Version => typeof(CliApplication).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0] ?? "unknown";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -39,7 +41,7 @@ public static class CliApplication
         if (args.Length == 0 || (args.Length == 1 && args[0] is "--help" or "-h"))
         { await output.WriteLineAsync(Help); return 0; }
         if (args.Length == 1 && args[0] == "--version")
-        { await output.WriteLineAsync("rea-dotnet 0.1.0-preview"); return 0; }
+        { await output.WriteLineAsync("rea-sharp " + Version); return 0; }
         if (args.Length == 1 && args[0] == "mcp") return await McpServer.RunAsync(input ?? Console.In, output, error, cancellationToken);
         if (args[0] == "setup") return await SetupCommand.RunAsync(args[1..], output, error);
         if (args[0] == "inspect-managed-artifact") return await InspectManaged(args, output, error, cancellationToken);

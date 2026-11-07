@@ -100,7 +100,7 @@ public static class Installer
             return 0;
         }
         catch (Exception ex)
-        when (ex is ArgumentException or IOException or InvalidOperationException or System.ComponentModel.Win32Exception or System.Xml.XmlException or OperationCanceledException)
+        when (ex is ArgumentException or InvalidDataException or IOException or InvalidOperationException or System.ComponentModel.Win32Exception or System.Xml.XmlException or OperationCanceledException)
         {
             await error.WriteLineAsync("REA installation failed: " + ex.Message);
             if (staging is not null)

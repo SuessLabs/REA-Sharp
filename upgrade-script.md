@@ -21,6 +21,8 @@ Non-negotiable constraints:
 - Application, orchestration, validation and experiment implementations use C#
   targeting .NET 10. No JavaScript, TypeScript, Node/npm runtime, npm manifests,
   executable browser scripts or JavaScript embedded in C# strings.
+- The user-approved root build.bat/build.ps1 files are Windows build orchestration
+  exceptions. Preserve them; installer and application logic remain C#.
 - Preserve the existing narrow exception for engine-required Python/Java/Swift
   sources in bridge/. It does not authorize other-language application code.
 - Keep documentation, configuration, static HTML/CSS and data assets as appropriate.

@@ -2,6 +2,9 @@
 
 _[Reverse Engineer Anything **SHARP**](https://github.com/DamianSuess/rea-sharp)_ is a C#/.NET 10 port of REA. Feature coverage and verification limits are documented below; no performance equivalence or improvement is assumed.
 
+Build GitHub release installers with [build.bat](build.bat), which calls
+[build.ps1](build.ps1) and writes to `publish/`. See [Windows release builds](docs/windows-releases.md).
+
 Install from this checkout with the [C# installer](docs/csharp-installation.md).
 
 ## Upstream synchronization
@@ -46,7 +49,8 @@ dotnet run --project dotnet/src/Rea.Cli --configuration Release --no-build -- in
 dotnet run --project dotnet/src/Rea.Cli --configuration Release --no-build -- inspect-managed-artifact /path/to/assembly.dll
 ```
 
-On Windows it will install to: `C:\Users\USERNAME\.local\share\rea\dotnet-tool\`
+The source-checkout .NET tool installer uses this Windows location (the standalone
+release installer uses the versioned location in the Windows release guide): `C:\Users\USERNAME\.local\share\rea\dotnet-tool\`
 
 Execute it via:
 

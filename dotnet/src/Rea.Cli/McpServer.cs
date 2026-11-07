@@ -45,7 +45,7 @@ public static class McpServer
                             {
                                 ["protocolVersion"] = requested is "2025-06-18" or "2025-11-25" ? requested : Protocol,
                                 ["capabilities"] = new JsonObject { ["tools"] = new JsonObject { ["listChanged"] = false } },
-                                ["serverInfo"] = new JsonObject { ["name"] = "rea-sharp", ["version"] = "0.1.0-preview" },
+                                ["serverInfo"] = new JsonObject { ["name"] = "rea-sharp", ["version"] = CliApplication.Version },
                                 ["instructions"] = "Static C# inspections only. Preserve reported digest scope, limitations and unknowns. The legacy provider/MCP catalog is not restored."
                             }; break;
                         case "ping": result = new JsonObject(); break;
@@ -153,5 +153,3 @@ public static class McpServer
         }
     }
 }
-
-
