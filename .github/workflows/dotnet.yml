@@ -29,6 +29,8 @@ jobs:
       - run: dotnet build Rea.slnx --configuration Release --nologo
       - name: Validate architecture, current documentation and portable skill references in C#
         run: dotnet exec scripts/bin/Release/net10.0/Rea.Validation.dll repository .
+      - name: Build the script-free static website with C#
+        run: dotnet exec scripts/bin/Release/net10.0/Rea.Validation.dll website . dotnet/artifacts/static-website
       - name: Execute actual test cases and retain timing/failure evidence
         run: dotnet exec scripts/bin/Release/net10.0/Rea.Validation.dll test-hygiene . dotnet/artifacts/reports/test-results.json
       - name: Reject missing, empty or failed reports

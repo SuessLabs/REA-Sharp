@@ -22,7 +22,7 @@ internal static class RepositoryTests
     }
 
     private static readonly HashSet<string> DataExtensions = new(StringComparer.OrdinalIgnoreCase)
-    { ".cs", ".csproj", ".slnx", ".props", ".targets", ".json", ".xml", ".yaml", ".yml", ".md", ".txt", ".mermaid" };
+    { ".cs", ".csproj", ".slnx", ".props", ".targets", ".json", ".xml", ".yaml", ".yml", ".md", ".txt", ".mermaid", ".html", ".css", ".svg", ".tmpl", ".toml", ".po", ".pot" };
     private static readonly HashSet<string> ForbiddenManifests = new(StringComparer.OrdinalIgnoreCase)
     { "package.json", "package-lock.json", "npm-shrinkwrap.json", "yarn.lock", "pnpm-lock.yaml", "pnpm-workspace.yaml", "bun.lock", "bun.lockb", "deno.json", "deno.jsonc", "turbo.json", "CMakeLists.txt", ".gitmodules" };
     private static readonly HashSet<string> MetadataNames = new(StringComparer.OrdinalIgnoreCase)
@@ -63,6 +63,11 @@ internal static class RepositoryTests
                     examinedBridges.Add(relative); continue;
                 }
                 if (relative.StartsWith("docs/", StringComparison.Ordinal) && Path.GetExtension(file) is ".png" or ".svg" or ".csv") continue;
+                if (relative.StartsWith("website/", StringComparison.Ordinal) && Path.GetExtension(file) is ".html" or ".tmpl" or ".svg")
+                {
+                    var markup = File.ReadAllText(file);
+                    if (Rea.Validation.WebsiteBuilder.StaticMarkup(markup) != markup) yield return relative + " (executable website markup)";
+                }
                 if (!Allowed(Path.GetFileName(file))) yield return relative;
             }
             foreach (var child in Directory.EnumerateDirectories(current))

@@ -79,12 +79,13 @@ public sealed class ManagedArtifactInspector : IManagedArtifactInspector
                 unchecked((uint)cli.ResourcesDirectory.RelativeVirtualAddress), unchecked((uint)cli.ResourcesDirectory.Size),
                 unchecked((uint)cli.StrongNameSignatureDirectory.RelativeVirtualAddress), unchecked((uint)cli.StrongNameSignatureDirectory.Size),
                 unchecked((uint)nativeDirectory.RelativeVirtualAddress), unchecked((uint)nativeDirectory.Size), readyToRun) };
-            var metadata = pe.GetMetadataReader(MetadataReaderOptions.None, new MetadataStringDecoder(new UTF8Encoding(false, true)));
             image.FileOffset(cli.MetadataDirectory.RelativeVirtualAddress, cli.MetadataDirectory.Size);
-            var declarations = ManagedStreamHeaders.Read(pe.GetMetadata().GetContent().AsSpan());
+            var root = ManagedStreamHeaders.Read(pe.GetMetadata().GetContent().AsSpan(), pe.PEHeaders.MetadataStartOffset);
+            var declarations = root.Streams;
+            var metadata = pe.GetMetadataReader(MetadataReaderOptions.None, new MetadataStringDecoder(new UTF8Encoding(false, true)));
             streams = Array.AsReadOnly(declarations.Select(declaration => declaration.Name).ToArray());
             context = new(image, metadata, declarations.SingleOrDefault(declaration => declaration.Name == "#Strings"), cancellationToken);
-            version = metadata.MetadataVersion;
+            version = root.Version;
             foreach (var table in Enum.GetValues<TableIndex>())
             {
                 var rows = metadata.GetTableRowCount(table);
@@ -99,6 +100,7 @@ public sealed class ManagedArtifactInspector : IManagedArtifactInspector
         }
         catch (ManagedCapacityException ex)
         { exhausted = true; issues.Add(new("resource-limit", "metadata.representation", null, ex.Message)); }
+        catch (ManagedMetadataVersionException ex) { issues.Add(new("invalid-metadata-root", "metadata.version", ex.FileOffset, ex.Message)); }
         catch (BadImageFormatException ex) { issues.Add(new("invalid-metadata-root", "metadata", null, ex.Message)); }
         catch (DecoderFallbackException ex) { issues.Add(new("invalid-string", "metadata", null, ex.Message)); }
         catch (ArgumentOutOfRangeException ex) { issues.Add(new("invalid-directory", "metadata", null, ex.Message)); }

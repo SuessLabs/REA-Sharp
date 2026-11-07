@@ -1,8 +1,21 @@
 # REA-SHARP — C# / .NET 10
 
-_[Reverse Engineer Anything **SHARP**](https://github.com/DamianSuess/rea-sharp)_ is a complete rewrite of the original REA in C#, _removing dependency on Node/NPM and JavaScript overheads_, thus improving performance.
+_[Reverse Engineer Anything **SHARP**](https://github.com/DamianSuess/rea-sharp)_ is a C#/.NET 10 port of REA. Feature coverage and verification limits are documented below; no performance equivalence or improvement is assumed.
 
 Install from this checkout with the [C# installer](docs/csharp-installation.md).
+
+## Upstream synchronization
+
+The [upstream sync record](docs/upstream-sync.md) pins the requested range from
+`b3b5c8b` through `abfccc068`. The complete sync remains in progress:
+the first C# fixes and a two-tool MCP adapter are implemented, while missing
+upstream provider capabilities remain explicitly pending. No upstream Node/npm
+implementation is imported. The legacy website now uses C# static publishing:
+browser-only JavaScript demos are retired with Git recovery records. No JavaScript
+or TypeScript source files remain in the working tree (excluding Git/build artifacts).
+
+See [C# MCP and configuration setup](docs/csharp-mcp.md) for the restored local
+transport and additive JSON client registration.
 
 ## Overview
 
@@ -65,7 +78,7 @@ See [implementation details](dotnet/README.md) and [architecture](docs/architect
 
 ## Removed functionality
 
-The former MCP server, full command catalog, Evidence/session workflows, deep
+The full legacy MCP command catalog, Evidence/session workflows, deep
 analysis providers, debugging/instrumentation, browser and Electron workflows,
 artifact extraction, active platform-specific adapters, provider setup, the former website runtime, and
 npm distribution are unavailable in this checkout. Managed members, signatures,

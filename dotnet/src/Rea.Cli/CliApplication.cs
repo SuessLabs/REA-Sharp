@@ -26,18 +26,22 @@ public static class CliApplication
         REA .NET 10 — C# edition
         Usage: rea inspect-header PATH [--host-architecture HOST] [--header-bytes N] [--format dos-com]
                rea inspect-managed-artifact PATH [--max-file-bytes N]
+               rea mcp
+               rea setup --config JSON_PATH [--dry-run] [--yes]
         HOST: x64, arm64, ia32, arm. Defaults to the current process architecture.
         N: positive retained-prefix byte budget (default 65536).
         Static local reads only. JSON includes retained-prefix provenance and limitations.
-        Only the listed commands are available. The legacy CLI and MCP server were removed.
+        MCP exposes the two static inspections. Other legacy providers and commands remain unavailable.
         """;
 
-    public static async Task<int> RunAsync(string[] args, TextWriter output, TextWriter error, CancellationToken cancellationToken = default)
+    public static async Task<int> RunAsync(string[] args, TextWriter output, TextWriter error, CancellationToken cancellationToken = default, TextReader? input = null)
     {
         if (args.Length == 0 || (args.Length == 1 && args[0] is "--help" or "-h"))
         { await output.WriteLineAsync(Help); return 0; }
         if (args.Length == 1 && args[0] == "--version")
         { await output.WriteLineAsync("rea-dotnet 0.1.0-preview"); return 0; }
+        if (args.Length == 1 && args[0] == "mcp") return await McpServer.RunAsync(input ?? Console.In, output, error, cancellationToken);
+        if (args[0] == "setup") return await SetupCommand.RunAsync(args[1..], output, error);
         if (args[0] == "inspect-managed-artifact") return await InspectManaged(args, output, error, cancellationToken);
         if (args.Length < 2 || args[0] != "inspect-header")
             return await UsageError("Expected inspect-header PATH", error);
