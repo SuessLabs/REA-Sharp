@@ -12,6 +12,13 @@ public static class ValidationCommand
             var root = Path.GetFullPath(args[1]);
             switch (args[0])
             {
+                case "website" when args.Length == 3:
+                    await output.WriteLineAsync("Static C# website pages: " + WebsiteBuilder.Build(root, args[2])); return 0;
+                case "convert-website" when args.Length == 3 && args[2] == "--yes":
+                    await WebsiteBuilder.Convert(root); await output.WriteLineAsync("Website adapted to static C# publishing; incompatible JavaScript demos retired with Git receipts."); return 0;
+                case "upstream-inventory" when args.Length == 5:
+                    await UpstreamSync.Generate(root, args[2], args[3], args[4]);
+                    await output.WriteLineAsync("Pinned upstream inventory written; pending entries are not ported capabilities."); return 0;
                 case "repository" when args.Length == 2:
                     var issues = ArchitectureChecks.Inspect(root).Concat(DocumentationChecks.Inspect(root)).ToArray();
                     var path = Path.Combine(root, "dotnet/artifacts/validation/repository.json");

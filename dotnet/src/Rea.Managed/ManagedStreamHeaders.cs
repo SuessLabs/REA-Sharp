@@ -4,18 +4,30 @@ using System.Text;
 namespace Rea.Managed;
 
 internal sealed record ManagedStreamDeclaration(string Name, int Offset, int Size);
+internal sealed record ManagedMetadataRoot(string Version, IReadOnlyList<ManagedStreamDeclaration> Streams);
+internal sealed class ManagedMetadataVersionException(long offset, Exception inner)
+    : BadImageFormatException("Metadata version is not valid UTF-8", inner)
+{
+    public long FileOffset { get; } = offset;
+}
 
 // The SDK exposes decoded tables, not the declared stream-name directory.
 // This parser owns only those directory facts; row and heap interpretation stays with the SDK.
 internal static class ManagedStreamHeaders
 {
-    public static IReadOnlyList<ManagedStreamDeclaration> Read(ReadOnlySpan<byte> bytes)
+    public static ManagedMetadataRoot Read(ReadOnlySpan<byte> bytes, long fileOffset)
     {
         if (bytes.Length < 20 || BinaryPrimitives.ReadUInt32LittleEndian(bytes) != 0x424a5342)
             throw new BadImageFormatException("Invalid CLI metadata root signature");
         var versionLength = BinaryPrimitives.ReadUInt32LittleEndian(bytes[12..]);
         var start = (16L + versionLength + 3) & ~3L;
         if (start > bytes.Length - 4) throw new BadImageFormatException("Metadata version extends beyond its directory");
+        var versionBytes = bytes.Slice(16, (int)versionLength);
+        var terminatorIndex = versionBytes.IndexOf((byte)0);
+        if (terminatorIndex >= 0) versionBytes = versionBytes[..terminatorIndex];
+        string version;
+        try { version = new UTF8Encoding(false, true).GetString(versionBytes); }
+        catch (DecoderFallbackException ex) { throw new ManagedMetadataVersionException(fileOffset + 16, ex); }
         var offset = (int)start;
         var count = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(offset + 2)..]); offset += 4;
         if (count > (bytes.Length - offset) / 12) throw new BadImageFormatException("Metadata stream count exceeds directory bytes");
@@ -38,6 +50,6 @@ internal static class ManagedStreamHeaders
             if (!seen.Add(name)) throw new BadImageFormatException("Duplicate metadata stream name");
             declarations.Add(new(name, (int)streamOffset, (int)streamSize)); offset += (terminator + 1 + 3) & ~3;
         }
-        return declarations.AsReadOnly();
+        return new(version, declarations.AsReadOnly());
     }
 }

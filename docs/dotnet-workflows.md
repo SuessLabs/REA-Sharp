@@ -1,8 +1,8 @@
 # Current C# workflows and restored folders
 
 The application currently exposes `inspect-header` and `inspect-managed-artifact`.
-Restoring documentation, bridge sources and CI does not restore the former MCP
-server or provider adapters. Historical guides carry an explicit status banner.
+A new C# stdio MCP adapter exposes these two implemented inspections; the full
+legacy MCP catalog and provider adapters remain unported. See [MCP setup](csharp-mcp.md). Historical guides carry an explicit status banner.
 
 ## Build and verification
 

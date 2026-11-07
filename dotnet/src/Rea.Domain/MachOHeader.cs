@@ -6,7 +6,7 @@ internal static class MachOHeader
     internal static bool IsFatMagic(uint magic) => magic is 0xcafebabe or 0xcafebabf or 0xbebafeca or 0xbfbafeca;
     private static string? Architecture(uint cpu) => cpu switch
     {
-        7 => "x86", 0x01000007 => "x86_64", 12 => "arm", 0x0100000c => "arm64", _ => null
+        7 => "x86", 0x01000007 => "x86_64", 12 => "arm", 0x0100000c => "arm64", 0x0200000c => "arm64_32", _ => null
     };
 
     internal static Result<ExecutableMetadata, string> ParseThin(ReadOnlySpan<byte> bytes, uint magic, long fileSize)
@@ -21,6 +21,19 @@ internal static class MachOHeader
         var commandBytes = reader.U32(20);
         if (headerSize + (long)commandBytes > fileSize)
             return ExecutableHeader.Fail($"truncated Mach-O load commands: the header declares {commandBytes} bytes after its {headerSize}-byte header; the file has {fileSize}");
+        var commandCount = reader.U32(16); long cursor = 0;
+        for (uint index = 0; index < commandCount; index++)
+        {
+            if (cursor + 8 > commandBytes) return ExecutableHeader.Fail($"load command {index} starts beyond sizeofcmds");
+            var position = headerSize + cursor;
+            // The caller owns a bounded prefix; do not treat unobserved rows as valid.
+            if (position + 8 > bytes.Length) return ExecutableHeader.Ok(new SimpleExecutableMetadata("mach-o", architecture));
+            var size = reader.U32((int)position + 4);
+            if (size < 8 || size % (wide ? 8 : 4) != 0 || size > commandBytes - cursor)
+                return ExecutableHeader.Fail($"load command {index} at offset {cursor} has invalid cmdsize {size}");
+            cursor += size;
+        }
+        if (cursor != commandBytes) return ExecutableHeader.Fail($"load commands declare {commandCount} commands but sizeofcmds holds {commandBytes} bytes");
         return ExecutableHeader.Ok(new SimpleExecutableMetadata("mach-o", architecture));
     }
 

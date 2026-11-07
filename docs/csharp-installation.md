@@ -44,6 +44,7 @@ installation are preserved for inspection; the staging path is reported.
 `--no-setup` is accepted for compatibility. `--no-prompt` suppresses the approval
 prompt and requires `--yes` to install. Registry `--version` selection is unavailable;
 the old `REA_VERSION` variable is not consumed. There is no published C# release
-channel. The removed `rea setup` command is never invoked. Provider installation,
-agent registration and runtime installation remain unavailable. The current CLI
+channel. The installer never invokes setup automatically. Basic additive JSON registration
+is available separately through [C# setup](csharp-mcp.md#plan-and-approve-json-configuration). Provider installation,
+full upstream client registration and runtime installation remain unavailable. The current CLI
 supports `inspect-header` and `inspect-managed-artifact`.

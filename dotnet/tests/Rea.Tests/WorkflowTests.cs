@@ -79,7 +79,7 @@ internal static class WorkflowTests
             using var doc = JsonDocument.Parse(output.ToString()); Check.Equal("dos-com", doc.RootElement.GetProperty("value").GetProperty("header").GetProperty("format").GetString());
         });
         foreach (var args in new[] {
-            new[] { "mcp" }, new[] { "inspect-header" }, new[] { "inspect-header", "x", "--header-bytes", "-1" },
+            new[] { "not-a-command" }, new[] { "inspect-header" }, new[] { "inspect-header", "x", "--header-bytes", "-1" },
             new[] { "inspect-header", "x", "--unknown", "y" }, new[] { "inspect-header", "x", "--format" },
             new[] { "inspect-header", "x", "--format", "elf" },
             new[] { "inspect-header", "x", "--host-architecture", "sparc" },

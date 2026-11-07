@@ -1,0 +1,48 @@
+[
+  {
+    "commit": "10407fb62409d8fc84e6e33c865bb644b2b072da",
+    "behavior": "Strict UTF-8 metadata-version decoding, valid multibyte text preservation and exact version field offsets.",
+    "status": "selective-csharp-port",
+    "limitations": "Uses .NET metadata SDK; not a port of the entire managed provider."
+  },
+  {
+    "commit": "3c1cce78ee6c5de64a19f362779271bce763981e",
+    "behavior": "ELF e_machine 164 reports Qualcomm Hexagon.",
+    "status": "selective-csharp-port",
+    "limitations": "Static header admission only; no Ghidra/Hopper/IDA support claim."
+  },
+  {
+    "commit": "cd7a0eefd8c5d54579ab63e0e934c730fda55459",
+    "behavior": "JVM interface indexes must reference CONSTANT_Class entries before CAFEBABE is classified as a JVM class.",
+    "status": "selective-csharp-port"
+  },
+  {
+    "commit": "ab30df08f7a83bc3778c328e71b09a9cbf604a7d",
+    "behavior": "DOS relocation padding does not invent e_lfanew; unobserved Windows header candidates remain explicit.",
+    "status": "selective-csharp-port"
+  },
+  {
+    "commit": "861e17a3a71626f7af96ad96f189c6e0e12a0e28",
+    "behavior": "Thin arm64_32 Mach-O static header admission.",
+    "status": "selective-csharp-port",
+    "limitations": "Synthetic fixtures; no Apple compiler or real-engine verification."
+  },
+  {
+    "commit": "5796220f23d60381f96c00114a89cc70bb90cdf6",
+    "behavior": "Mach-O command count, command size, extent and width-specific alignment checks within retained bytes.",
+    "status": "selective-csharp-port",
+    "limitations": "Unretained command headers remain unexamined; no claim of whole-file verification."
+  },
+  {
+    "source_area": "src/server and src/cli",
+    "behavior": "C# stdio MCP initialization, ping, named tool schemas, tools/list and tools/call for implemented inspections; planned additive JSON registration with approval, backups and idempotence.",
+    "status": "partial-application-restoration",
+    "limitations": "Not full legacy MCP/provider/client setup parity."
+  },
+  {
+    "source_area": "website and scripts/website.py",
+    "behavior": "C# static publisher retains page content and styles; JavaScript runtime files and executable inline markup retired under zero-JavaScript constraint.",
+    "status": "static-adaptation-with-explicit-retirements",
+    "limitations": "Browser/Electron demos and script interactions are retired, not claimed as C# equivalents."
+  }
+]

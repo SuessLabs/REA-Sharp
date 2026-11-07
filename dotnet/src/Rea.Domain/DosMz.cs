@@ -7,6 +7,7 @@ public abstract record MzWindowsHeaderObservation
     public sealed record HeaderNeeded : MzWindowsHeaderObservation;
     public sealed record SignatureNeeded(uint Offset) : MzWindowsHeaderObservation;
     public sealed record Declared(uint Offset, string Signature) : MzWindowsHeaderObservation;
+    public sealed record Candidate(uint Offset, string Signature) : MzWindowsHeaderObservation;
 }
 
 public sealed record DosMzHeader(
@@ -31,8 +32,19 @@ public static class DosMz
         var available = !signatureAtOffset.IsEmpty ? signatureAtOffset
             : offset < bytes.Length ? bytes.Slice((int)offset, Math.Min(4, bytes.Length - (int)offset)) : default;
         var signature = Signature(available);
-        if (headerBytes == 0 || headerBytes >= 64 || signature is not ("other" or "unobserved"))
+        if (signature is not ("other" or "unobserved"))
             return new MzWindowsHeaderObservation.Declared(offset, signature);
+        var tableEnd = tableStart + count * 4;
+        if (headerBytes >= 64 && count > 0 && tableEnd <= 60 && (signature == "other" || fileSize - offset < 2))
+            return new MzWindowsHeaderObservation.Absent();
+        if (headerBytes == 0 || headerBytes >= 64)
+        {
+            var remaining = fileSize - offset;
+            var more = available.Length < 2 && remaining >= 2
+                || available.Length is >= 2 and < 4 && available[..2].SequenceEqual("PE"u8) && remaining >= 4;
+            if (more && signatureAtOffset.IsEmpty) return new MzWindowsHeaderObservation.SignatureNeeded(offset);
+            return new MzWindowsHeaderObservation.Candidate(offset, signature);
+        }
         if (signature == "other") return new MzWindowsHeaderObservation.Absent();
         var pePrefix = available.Length >= 2 && available[..2].SequenceEqual("PE"u8);
         return fileSize - offset < (pePrefix ? 4 : 2)
@@ -58,6 +70,7 @@ public static class DosMz
         if (bytes.Length < 28 || !bytes[..2].SequenceEqual("MZ"u8)) return Fail("invalid or truncated DOS MZ header");
         if (fileSize < bytes.Length) return Fail("invalid DOS MZ file length");
         var windows = ObserveWindowsHeader(bytes, fileSize, signatureAtOffset);
+        if (windows is MzWindowsHeaderObservation.Candidate) return Fail("MZ has an unconfirmed Windows header candidate");
         if (windows is MzWindowsHeaderObservation.Declared) return Fail("MZ declares a Windows new header; it is not a DOS-only image");
         if (windows is MzWindowsHeaderObservation.SignatureNeeded) return Fail("MZ Windows new-header signature is outside the bounded prefix");
         var reader = new EndianReader(bytes);
@@ -94,6 +107,7 @@ public static class DosMz
         var windows = ObserveWindowsHeader(bytes, fileSize, signature);
         if (windows is MzWindowsHeaderObservation.HeaderNeeded or MzWindowsHeaderObservation.SignatureNeeded)
             return ExecutableHeader.Fail("Windows new-header pointer or signature is outside the bounded prefix");
+        if (windows is MzWindowsHeaderObservation.Candidate) return ExecutableHeader.Fail("MZ has an unconfirmed Windows header candidate");
         if (windows is MzWindowsHeaderObservation.Declared declared)
         {
             if (declared.Offset < 64 || declared.Offset > bytes.Length - 24L)

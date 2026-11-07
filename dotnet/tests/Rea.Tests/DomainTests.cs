@@ -109,9 +109,9 @@ internal static class DomainTests
         });
         yield return Case.Sync("Mach-O prefix validates load commands against file size", () =>
         {
-            var bytes = Fixtures.ThinMach(); Fixtures.U32(bytes, 20, 100);
+            var bytes = Fixtures.ThinMach(); Fixtures.U32(bytes, 16, 1); Fixtures.U32(bytes, 20, 104);
             Check.Failure(ExecutableHeader.Parse(bytes, "x64"));
-            Check.Success(ExecutableHeader.Parse(bytes, "x64", 132));
+            Check.Success(ExecutableHeader.Parse(bytes, "x64", 136));
         });
         yield return Case.Sync("JVM magic is not sufficient for Mach-O identity", () =>
         {

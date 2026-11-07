@@ -79,7 +79,9 @@ internal static class JvmClassFile
         var superClass = cursor.U2();
         if (superClass < 0 || (superClass != 0 && !Has(superClass, 7))) return false;
         var interfaces = cursor.U2();
-        if (interfaces < 0 || !cursor.Skip(interfaces * 2L)) return false;
+        if (interfaces < 0) return false;
+        for (var index = 0; index < interfaces; index++)
+            if (!Has(cursor.U2(), 7)) return false;
         if (!Members(ref cursor, tags) || !Members(ref cursor, tags)) return false;
         return Attributes(ref cursor, tags, cursor.U2()) && cursor.AtEnd;
     }

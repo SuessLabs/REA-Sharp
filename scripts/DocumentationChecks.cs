@@ -13,7 +13,7 @@ public static class DocumentationChecks
         var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(root, "docs/folder-restoration.json")))!;
         var restored = manifest["entries"]!.AsArray().Select(entry => entry!["current"]!.GetValue<string>()).ToHashSet(StringComparer.Ordinal);
         var paths = Directory.GetFiles(Path.Combine(root, "docs"), "*.md", SearchOption.AllDirectories)
-            .Concat(new[] { "README.md", "AGENTS.md", "CONTRIBUTING.md", "SECURITY.md", "DISCLAIMER.md", "THIRD_PARTY_NOTICES.md", "dotnet/README.md", ".github/README.md", "bridge/README.md", "experiments/analysis-efficiency/CSharp.md", "scripts/README.md" }.Select(path => Path.Combine(root, path)));
+            .Concat(new[] { "README.md", "AGENTS.md", "CONTRIBUTING.md", "SECURITY.md", "DISCLAIMER.md", "THIRD_PARTY_NOTICES.md", "dotnet/README.md", ".github/README-Note.md", "bridge/README.md", "experiments/analysis-efficiency/CSharp.md", "scripts/README.md" }.Select(path => Path.Combine(root, path)));
         foreach (var file in paths)
         {
             if (!File.Exists(file)) { yield return new(file, "error", "Required current guide missing"); continue; }
@@ -82,7 +82,7 @@ public static class DocumentationChecks
     public static IEnumerable<ValidationIssue> CheckCliExamples(string file, string markdown)
     {
         foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(MarkdownFacts.Code(markdown), @"(?m)^[ \t]*(?:dotnet[ \t]+exec[ \t]+(?:[^\s]*/)?rea\.dll|(?:[^\s]*/)?rea(?:\.exe)?)[ \t]+([a-z][a-z0-9-]*)", System.Text.RegularExpressions.RegexOptions.CultureInvariant, TimeSpan.FromSeconds(1)))
-            if (match.Groups[1].Value is not ("inspect-header" or "inspect-managed-artifact"))
+            if (match.Groups[1].Value is not ("inspect-header" or "inspect-managed-artifact" or "mcp" or "setup"))
                 yield return new(file, "error", "Executable example advertises an unavailable C# command: " + match.Groups[1].Value);
     }
 

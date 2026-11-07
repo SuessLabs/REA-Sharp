@@ -33,7 +33,7 @@ public static class ElfHeader
         var architecture = reader.U16(18) switch
         {
             3 => "x86", 62 => "x86_64", 8 => "mips", 20 => "powerpc",
-            40 => "arm", 183 => "arm64", 243 => "riscv", _ => null
+            40 => "arm", 164 => "hexagon", 183 => "arm64", 243 => "riscv", _ => null
         };
         if (architecture is null) return ExecutableHeader.Fail("unsupported ELF architecture");
         return ExecutableHeader.Ok(architecture is "mips" or "riscv" or "powerpc"
